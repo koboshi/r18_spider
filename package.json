@@ -1,0 +1,30 @@
+{
+  "name": "r18_spider",
+  "version": "1.0.0",
+  "description": "a r18.com spider",
+  "main": "start.js",
+  "scripts": {
+    "test": "npm test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/koboshi/r18_spider.git"
+  },
+  "keywords": [
+    "spider",
+    "r18"
+  ],
+  "author": "SamDing",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/koboshi/r18_spider/issues"
+  },
+  "homepage": "https://github.com/koboshi/r18_spider#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "pm2": "^2.7.1"
+  },
+  "devDependencies": {
+    "tap": "^10.7.2"
+  }
+}
