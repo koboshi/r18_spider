@@ -31,16 +31,47 @@ App.prototype.start = function() {
 }
 
 /**
- * 成人影片抓取
+ * 爬取影片列表页资料
  */
-App.prototype.movies = function() {
-    console.log('start grab', this.type, this.index, this.total);
-    var page = 1;
-    //TODO 获取最大页码
-    while (1) {
-        var path = '/videos/vod/movies/list/pagesize=30/price=all/sort=new/type=all/page=' + page + '/';
-        lib.http.r18_get(path, function(err, statusCode, content) {
-            console.log('start:', path);//请求异常
+App.prototype._list = function(listPath) {
+    var obj = this;
+    return function(callback) {
+        lib.http.r18_get(listPath, function(err, statusCode, content) {
+            console.log('start:', listPath);//开始列表页请求
+            if (err) {
+                console.log('error:', listPath, err.message);//请求异常
+                return;
+            }
+            if (statusCode != 200) {
+                console.log('request:', listPath, statusCode);//请求失败
+                return;
+            }
+            //解析html内容
+            var infoList = lib.r18.list(content);
+            var detailTask = [];
+            //爬取详情信息
+            for (i in infoList) {
+                var func = obj._detail(infoList[i].path);
+                detailTask.push(func);
+            }
+            //按次序执行详情爬取
+            async.series(detailTask, function(err, result) {
+                console.log('done:', listPath);
+                //抓取完毕，停止5s
+                setTimeout(function() {
+                    callback(null, detailTask.length);//调用回调
+                }, 5000);
+            });
+        });
+    };
+}
+
+/**
+ * 爬取影片详细资料入库
+ */
+App.prototype._detail = function(detailPath) {
+    return function(callback) {
+        lib.http.r18_get(detailPath, function(err, statusCode, content) {
             if (err) {
                 console.log('error:', path, err.message);//请求异常
                 return;
@@ -50,44 +81,50 @@ App.prototype.movies = function() {
                 return;
             }
             //解析html内容
-            var infoList = lib.r18.list(content);
-            var detailTask = [];
-            //爬取详情信息
-            for (i in infoList) {
-                (function(arg) {
-                    var title = arg.title;
-                    var cover = arg.cover;
-                    var detailPath = arg.path;
-                    detailTask.push(function(callback) {
-                        lib.http.r18_get(detailPath, function(err, statusCode, content) {
-                            if (err) {
-                                console.log('error:', path, err.message);//请求异常
-                                return;
-                            }
-                            if (statusCode != 200) {
-                                console.log('request:', path, statusCode);//请求失败
-                                return;
-                            }
-                            //解析html内容
-                            var detailInfo = lib.r18.detail(content);
-                            //console.log(detailInfo);
-                            //抓取完毕，停止5s
-                            setTimeout(function() {
-                                callback(null, detailInfo.title);//调用回调
-                            }, 5000);
-                            //TODO 写入数据库
-                        });
-                    });
-                })(infoList[i]);
-            }
-            //按次序执行爬取
-            async.series(detailTask, function(err, result) {
-                console.log(result);
-                console.log('done:', path);
-            });
+            var detailInfo = lib.r18.detail(content);
+            console.log(detailInfo.title);
+            //抓取完毕，停止5s
+            setTimeout(function() {
+                callback(null, detailInfo.title);//调用回调
+            }, 5000);
+            //写入数据库
+            lib.model.add(detailInfo);
         });
-        break;
-    }
+    };
+};
+
+/**
+ * 成人影片抓取
+ */
+App.prototype.movies = function() {
+    var obj = this;
+    console.log('start grab', this.type, this.index, this.total);
+    //TODO 获取最大页码
+    var path = '/videos/vod/movies/list/pagesize=30/price=all/sort=new/type=all/page=1/';
+    lib.http.r18_get(path, function(err, statusCode, content) {
+        if (err) {
+            console.log('error:', path, err.message);//请求异常
+            return;
+        }
+        if (statusCode != 200) {
+            console.log('request:', path, statusCode);//请求失败
+            return;
+        }
+        var listTask = [];
+        //获取当前最大页码
+        var maxPage = lib.r18.maxPage(content);
+        console.log(obj.type, 'max_page', maxPage);
+        //按页码循环爬取列表页
+        for (var i = 1; i <= maxPage; i++) {
+            var listPath = '/videos/vod/movies/list/pagesize=30/price=all/sort=new/type=all/page=' + i + '/';
+            var func = obj._list(listPath);
+            listTask.push(func);
+        }
+        //按次序执行列表爬取
+        async.series(listTask, function(err) {
+            console.log('done grab', this.type, this.index, this.total);
+        });
+    });
 }
 
 /**
