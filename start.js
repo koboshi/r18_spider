@@ -6,7 +6,13 @@
  * http://www.javzooso.com/
  * @author SamDing
  */
+var path = require('path');
+var nconf = require('nconf');
 var App = new require('./app');
+
+//初始化配置
+var configFile = path.resolve(__dirname, 'config', 'config.json');
+nconf.file({file: configFile});
 
 var type = '';
 if (process.argv[2]) {
@@ -23,4 +29,4 @@ if (process.argv[4]) {
 }
 
 var app = new App(type, index, total);
-app.start();
+app.start(nconf.get('list_size'));

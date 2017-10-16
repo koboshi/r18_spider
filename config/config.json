@@ -1,0 +1,11 @@
+{
+    "list_size": 30,
+    "database": {
+        "host": "127.0.0.1",
+        "port": 3306,
+        "username": "root",
+        "password": "",
+        "dbname": "r18",
+        "charset": "utf8"
+    }
+}
