@@ -18,7 +18,7 @@ util.inherits(App, Object);
  * 成人影片 http://www.r18.com/videos/vod/movies/list/pagesize=120/price=all/sort=new/type=all/page=1/
  * 素人影片 http://www.r18.com/videos/vod/amateur/list/pagesize=120/price=all/sort=new/type=all/page=1/
  */
-App.prototype.start = function(pageSize=120) {
+App.prototype.start = function(pageSize) {
     if (this.type == 'movies') {
         //开始成人影片抓取
         this._main(this.type, pageSize);
@@ -75,11 +75,11 @@ App.prototype._detail = function(detailPath) {
     return function(callback) {
         lib.http.r18_get(detailPath, function(err, statusCode, content) {
             if (err) {
-                console.log('error:', path, err.message);//请求异常
+                console.log('error:', detailPath, err.message);//请求异常
                 return;
             }
             if (statusCode != 200) {
-                console.log('request:', path, statusCode);//请求失败
+                console.log('request:', detailPath, statusCode);//请求失败
                 return;
             }
             //解析html内容
