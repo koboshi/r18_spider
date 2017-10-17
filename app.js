@@ -26,7 +26,7 @@ App.prototype.start = function(pageSize) {
         //开始素人影片抓取
         this._main(this.type, pageSize);
     }else {
-        console.log('not support type');
+        console.error('not support type');
         return;
     }
 }
@@ -40,11 +40,13 @@ App.prototype._list = function(listPath) {
         lib.http.r18_get(listPath, function(err, statusCode, content) {
             console.log('start:', listPath);//开始列表页请求
             if (err) {
-                console.log('error:', listPath, err.message);//请求异常
+                console.error('error:', listPath, err.message);//请求异常
+                callback(null, detailTask.length);//调用回调
                 return;
             }
             if (statusCode != 200) {
-                console.log('request:', listPath, statusCode);//请求失败
+                console.error('request:', listPath, statusCode);//请求失败
+                callback(null, detailTask.length);//调用回调
                 return;
             }
             //解析html内容
@@ -75,11 +77,13 @@ App.prototype._detail = function(detailPath) {
     return function(callback) {
         lib.http.r18_get(detailPath, function(err, statusCode, content) {
             if (err) {
-                console.log('error:', detailPath, err.message);//请求异常
+                console.error('error:', detailPath, err.message);//请求异常
+                callback(null, detailInfo.title);//调用回调
                 return;
             }
             if (statusCode != 200) {
-                console.log('request:', detailPath, statusCode);//请求失败
+                console.error('request:', detailPath, statusCode);//请求失败
+                callback(null, detailInfo.title);//调用回调
                 return;
             }
             //解析html内容
@@ -102,11 +106,11 @@ App.prototype._main = function(type, pageSize) {
     var path = '/videos/vod/' + type + '/list/pagesize=30/price=all/sort=new/type=all/page=1/';
     lib.http.r18_get(path, function(err, statusCode, content) {
         if (err) {
-            console.log('error:', path, err.message);//请求异常
+            console.error('error:', path, err.message);//请求异常
             return;
         }
         if (statusCode != 200) {
-            console.log('request:', path, statusCode);//请求失败
+            console.error('request:', path, statusCode);//请求失败
             return;
         }
         var listTask = [];

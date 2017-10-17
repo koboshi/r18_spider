@@ -6,6 +6,6 @@
         "username": "root",
         "password": "",
         "dbname": "r18",
-        "charset": "utf8"
+        "charset": "utf8mb4"
     }
 }
