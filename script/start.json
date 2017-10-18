@@ -1,0 +1,13 @@
+{
+    "apps" : [{
+        "name": "r18_movies",
+        "script": "/data1/r18_spider/start.js",
+        "watch": false,
+        "args": "movies 0 1"
+    },{
+        "name": "r18_amateur",
+        "script": "/data1/r18_spider/start.js",
+        "watch": false,
+        "args": "amateur 0 1"
+    }]
+}

@@ -1,6 +1,7 @@
 var util = require('util');
 var cheerio = require('cheerio');
 var async = require('async');
+var nconf = require('nconf');
 var lib = require('./lib');
 
 module.exports = App;
@@ -41,12 +42,12 @@ App.prototype._list = function(listPath) {
             console.log('start:', listPath);//开始列表页请求
             if (err) {
                 console.error('error:', listPath, err.message);//请求异常
-                callback(null, detailTask.length);//调用回调
+                callback(null);//调用回调
                 return;
             }
             if (statusCode != 200) {
                 console.error('request:', listPath, statusCode);//请求失败
-                callback(null, detailTask.length);//调用回调
+                callback(null);//调用回调
                 return;
             }
             //解析html内容
@@ -62,8 +63,8 @@ App.prototype._list = function(listPath) {
                 console.log('done:', listPath);
                 //抓取完毕，停止5s
                 setTimeout(function() {
-                    callback(null, detailTask.length);//调用回调
-                }, 5000);
+                    callback(null);//调用回调
+                }, nconf.get('interval'));
             });
         });
     };
@@ -78,12 +79,12 @@ App.prototype._detail = function(detailPath) {
         lib.http.r18_get(detailPath, function(err, statusCode, content) {
             if (err) {
                 console.error('error:', detailPath, err.message);//请求异常
-                callback(null, detailInfo.title);//调用回调
+                callback(null);//调用回调
                 return;
             }
             if (statusCode != 200) {
                 console.error('request:', detailPath, statusCode);//请求失败
-                callback(null, detailInfo.title);//调用回调
+                callback(null);//调用回调
                 return;
             }
             //解析html内容
@@ -91,8 +92,8 @@ App.prototype._detail = function(detailPath) {
             console.log(detailInfo.title);
             //抓取完毕，停止5s
             setTimeout(function() {
-                callback(null, detailInfo.title);//调用回调
-            }, 5000);
+                callback(null);//调用回调
+            }, nconf.get('interval'));
             //写入数据库
             lib.model.add(detailInfo);
         });
