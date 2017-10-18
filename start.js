@@ -1,6 +1,6 @@
 /**
  * 爬取小工具
- * 针对一下网站
+ * 针对以下网站
  * http://www.r18.com
  * http://www.javzoo.com/
  * http://www.javzooso.com/
